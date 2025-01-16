@@ -1,0 +1,179 @@
+local L_1_ = game.Players.LocalPlayer
+local L_2_ = L_1_:FindFirstChild("PlayerGui")
+local L_3_ = L_2_:FindFirstChild("PlayerListGui"):FindFirstChild("Frame"):FindFirstChild("ScrollingFrame")
+
+local L_4_
+
+local function L_5_func(L_26_arg0)
+	for L_27_forvar0, L_28_forvar1 in ipairs(game.Players:GetPlayers()) do
+		if L_28_forvar1.DisplayName == L_26_arg0 then
+			return L_28_forvar1
+		end
+	end
+	return nil
+end
+
+local function L_6_func()
+	local L_29_ = "No Team"
+	if L_1_.Team then
+		L_29_ = L_1_.Team.TeamColor.Name
+	end
+	local L_30_ = game.Players.LocalPlayer:FindFirstChild("Settings"):FindFirstChild("ShareBlocks").Value
+	if not L_30_ then
+		L_4_ = L_1_.Name
+	else
+		for L_31_forvar0, L_32_forvar1 in ipairs(L_3_:GetChildren()) do
+			local L_33_ = L_32_forvar1:FindFirstChild("PlayerName")
+			local L_34_ = L_32_forvar1:FindFirstChild("PlayerRank")
+			if L_33_ and L_34_ then
+				local L_35_ = L_33_.Text
+				local L_36_ = L_5_func(L_35_)
+				if L_36_ and L_34_.Image == "rbxassetid://1912631373" then
+					local L_37_ = "No Team"
+					if L_36_.Team then
+						L_37_ = L_36_.Team.TeamColor.Name
+					end
+					if L_37_ == L_29_ then
+						L_4_ = L_36_.Name
+						break
+					end
+				end
+			end
+		end
+	end
+	print("Updated TeamOwner: " .. (L_4_ or "No team owner found"))
+end
+L_6_func()
+
+
+
+local L_7_ = game.Players.LocalPlayer
+local L_8_ = L_7_:GetMouse()
+local L_9_ = game:GetService("UserInputService")
+local L_10_ = game:GetService("RunService")
+local L_11_ = workspace:FindFirstChild("Blocks"):FindFirstChild(L_4_)
+
+local L_12_ = nil
+local L_13_ = nil
+local L_14_ = false
+local L_15_ = nil
+local L_16_
+local L_17_
+local L_18_
+
+
+local function L_19_func()
+	local L_38_ = {}
+	local L_39_ = {}
+	local L_40_ = {}
+	local L_41_ = workspace:FindFirstChild("Blocks")
+	local L_42_ = L_41_ and L_41_:FindFirstChild(L_4_)
+	local L_43_ = L_1_.Backpack:FindFirstChild("PaintingTool")
+	local L_44_ = L_43_ and L_43_:FindFirstChild("RF")
+	if L_42_ and L_44_ then
+		for L_45_forvar0, L_46_forvar1 in ipairs(L_42_:GetChildren()) do
+			if L_46_forvar1.Name == _G.GlassBlockName then
+				local L_47_ = L_46_forvar1:FindFirstChild("PPart")
+				if L_47_ and L_47_:IsA("BasePart") and L_47_.Color == _G.TargetColor then
+					task.spawn(function()
+						table.insert(L_38_, L_46_forvar1)
+						table.insert(L_39_, L_46_forvar1)
+						table.insert(L_40_, L_46_forvar1)
+						L_44_:InvokeServer({
+							{
+								L_46_forvar1,
+								_G.NewColor
+							}
+						})
+					end)
+				end
+			end
+		end
+	end
+	return L_38_, L_39_, L_40_
+end
+
+
+
+local function L_20_func()
+	if not L_12_ then
+		L_12_ = Instance.new("Highlight")
+		L_12_.Name = "TemporaryHighlight"
+		L_12_.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+		L_12_.FillColor = Color3.fromRGB(255, 255, 0)
+		L_12_.FillTransparency = 0.5
+		L_12_.Parent = workspace:FindFirstChild("TempHighlights") or Instance.new("Folder", workspace)
+		L_12_.Parent.Name = "TempHighlights"
+	end
+end
+
+local function L_21_func(L_48_arg0)
+	L_20_func()
+	if L_12_ then
+		if L_48_arg0 then
+			if not L_14_ or L_15_ ~= L_48_arg0 then
+				L_12_.Adornee = L_48_arg0
+				L_12_.Enabled = true
+				L_14_ = true
+				L_15_ = L_48_arg0
+			end
+		else
+			if L_14_ then
+				L_12_.Adornee = nil
+				L_12_.Enabled = false
+				L_14_ = false
+				L_15_ = nil
+			end
+		end
+	end
+end
+
+local function L_22_func()
+	L_6_func()
+	if L_13_ then
+		_G.GlassBlockName = L_13_.Parent.Name
+		_G.TargetColor = L_13_.Color
+		L_21_func(nil)
+		if L_16_ then
+			L_16_:Disconnect()
+		end
+		if L_17_ then
+			L_17_:Disconnect()
+		end
+		if L_18_ then
+			L_18_:Disconnect()
+		end
+		L_19_func()
+	else
+		print("No block selected.")
+	end
+end
+
+local function L_23_func()
+	local L_49_ = L_8_.Target
+	if L_49_ and L_49_:IsA("BasePart") and L_49_:IsDescendantOf(L_11_) then
+		if L_49_ ~= L_13_ then
+			L_13_ = L_49_
+			L_21_func(L_13_)
+		end
+	else
+		L_13_ = nil
+		L_21_func(nil)
+	end
+end
+
+local function L_24_func(L_50_arg0)
+	if L_50_arg0.UserInputType == Enum.UserInputType.MouseMovement then
+		L_23_func()
+	end
+end
+
+local function L_25_func(L_51_arg0)
+	if L_51_arg0.UserInputType == Enum.UserInputType.MouseButton1 then
+		L_22_func()
+	end
+end
+
+L_16_ = L_10_.Heartbeat:Connect(L_23_func)
+L_17_ = L_9_.InputChanged:Connect(L_24_func)
+L_18_ = L_9_.InputBegan:Connect(L_25_func)
